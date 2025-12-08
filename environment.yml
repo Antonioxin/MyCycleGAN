@@ -1,0 +1,30 @@
+name: cyclegan-env
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+  - defaults
+
+dependencies:
+  # ---- 基础环境 ----
+  - python=3.10
+  - pip
+
+  # ---- PyTorch + CUDA（AutoDL 上常见配置）----
+  # 如果某位组员只有 CPU 环境，可以删掉 pytorch-cuda 这一行，
+  # 然后让 conda 自动装 CPU 版的 PyTorch。
+  - pytorch=2.3.*
+  - torchvision=0.18.*
+  - pytorch-cuda=12.1
+
+  # ---- 科学计算与图像处理 ----
+  - numpy
+  - pillow
+  - matplotlib
+
+  # ---- 辅助工具 ----
+  - tqdm
+
+  # ---- 通过 pip 安装的包 ----
+  - pip:
+      - tensorboard
