@@ -1,24 +1,117 @@
-# Python
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-*.log
+# =========================
+# MyCycleGAN .gitignore
+# (keep code, ignore data/weights/results/logs)
+# =========================
 
-# Virtual env
+# ---- Python cache / build ----
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.dylib
+*.dll
+*.egg-info/
+build/
+dist/
+pip-wheel-metadata/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ---- Virtual environments ----
 venv/
 .venv/
 env/
+ENV/
+conda_env/
+.miniconda/
+.conda/
 
-# IDE / Editor
+# ---- IDE / Editor ----
 .vscode/
 .idea/
+*.code-workspace
 
-# Data & results
+# ---- OS ----
+.DS_Store
+Thumbs.db
+
+# ---- Jupyter ----
+.ipynb_checkpoints/
+
+# =========================
+# Training datasets / artifacts (DO NOT COMMIT)
+# =========================
+
+# Datasets / raw data
 data/
+datasets/
+**/data/
+**/datasets/
+
+# Any dataset archives / downloads
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+
+# =========================
+# Model checkpoints / weights (DO NOT COMMIT)
+# =========================
+
+# Default/typical checkpoint dirs
 checkpoints/
+checkpoint/
+ckpt/
+weights/
+
+# Your specific checkpoint folder(s)
+checkpoints_*/
+**/checkpoints_*/
+
+# Model weight files
+*.pth
+*.pt
+*.ckpt
+*.bin
+*.safetensors
+*.onnx
+
+# =========================
+# Outputs / results / logs (DO NOT COMMIT)
+# =========================
+
+# Common output folders
 results/
 runs/
+output/
+outputs/
+exp/
+experiments/
 
-# Jupyter
-.ipynb_checkpoints/
+# Your current output naming
+results_*/
+results-*/
+**/results_*/
+**/results-*/
+
+# Logs
+logs/
+log/
+*.log
+events.out.tfevents.*
+wandb/
+tb_logs/
+
+# =========================
+# Optional: keep folder placeholders (if you add empty .keep files)
+# =========================
+# If you want empty dirs tracked, add a .keep file inside them.
+# Then uncomment the following lines:
+# !data/**/.keep
+# !datasets/**/.keep
+# !checkpoints_*/**/.keep
+# !results_*/**/.keep
+# !logs/**/.keep
