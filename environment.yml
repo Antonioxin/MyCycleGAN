@@ -1,7 +1,5 @@
 name: cyclegan-env
 channels:
-  - pytorch
-  - nvidia
   - conda-forge
   - defaults
 
@@ -9,22 +7,27 @@ dependencies:
   # ---- 基础环境 ----
   - python=3.10
   - pip
-
-  # ---- PyTorch + CUDA（AutoDL 上常见配置）----
-  # 如果某位组员只有 CPU 环境，可以删掉 pytorch-cuda 这一行，
-  # 然后让 conda 自动装 CPU 版的 PyTorch。
-  - pytorch=2.3.*
-  - torchvision=0.18.*
-  - pytorch-cuda=12.1
+  - setuptools
+  - wheel
 
   # ---- 科学计算与图像处理 ----
-  - numpy
-  - pillow
-  - matplotlib
+  - numpy>=1.23
+  - pillow>=9.5
+  - matplotlib>=3.7
+  - tqdm>=4.66
 
-  # ---- 辅助工具 ----
-  - tqdm
+  # ---- 常用实用工具（建议保留，减少踩坑） ----
+  - pyyaml
+  - requests
 
-  # ---- 通过 pip 安装的包 ----
+  # ---- pip 依赖（统一、可复现） ----
   - pip:
-      - tensorboard
+      # TensorBoard（你们已经在用）
+      - tensorboard>=2.14
+
+      # ========= PyTorch（默认装 CPU 版，所有机器都能成功）=========
+      # 说明：
+      # 1) 先用本 environment.yml 创建环境，默认会装 CPU 版 torch/torchvision
+      # 2) 如果是 NVIDIA GPU 机器，再执行 README 里的“GPU 升级命令”替换成 CUDA 版
+      - torch==2.3.1
+      - torchvision==0.18.1

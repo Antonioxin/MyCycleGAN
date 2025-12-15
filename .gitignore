@@ -115,3 +115,6 @@ tb_logs/
 # !checkpoints_*/**/.keep
 # !results_*/**/.keep
 # !logs/**/.keep
+eval_out/
+eval_out_cbam/
+eval_out_origin/

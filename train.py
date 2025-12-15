@@ -98,6 +98,13 @@ def parse_args():
     add_bool_arg(parser, "perceptual", default=False, help_text="Enable perceptual loss.")
     parser.add_argument("--perceptual-weight", type=float, default=0.0)
 
+    # --------- ✅ 可选：CBAM（只加在最后 N 个残差块）---------
+    add_bool_arg(parser, "cbam", default=False, help_text="Enable CBAM in generators (only last N ResNet blocks).")
+    parser.add_argument("--cbam-last-n", type=int, default=3,
+                        help="Apply CBAM to the last N residual blocks. (0 disables even if --cbam)")
+    parser.add_argument("--cbam-ratio", type=int, default=16, help="CBAM channel reduction ratio.")
+    parser.add_argument("--cbam-kernel-size", type=int, default=7, help="CBAM spatial attention kernel size (odd).")
+
     # --------- 复现 / 续训 ---------
     parser.add_argument("--seed", type=int, default=-1, help=">=0 set seed; -1 means no seed (faster).")
     parser.add_argument("--resume", type=str, default="", help="checkpoint path to resume from")
@@ -108,6 +115,14 @@ def parse_args():
 
 def main():
     args = parse_args()
+
+    # ---- CBAM 参数合法性处理（尽量不让你踩坑）----
+    if args.cbam_last_n < 0:
+        raise ValueError("--cbam-last-n must be >= 0")
+    if args.cbam_kernel_size <= 1 or args.cbam_kernel_size % 2 == 0:
+        raise ValueError("--cbam-kernel-size must be an odd integer > 1")
+    if args.cbam_ratio <= 0:
+        raise ValueError("--cbam-ratio must be > 0")
 
     use_cuda = (args.device == "cuda" and torch.cuda.is_available())
     device = "cuda" if use_cuda else "cpu"
@@ -161,6 +176,12 @@ def main():
     if amp_dtype == "fp32":
         args.amp = False
 
+    # ---- CBAM kwargs ----
+    cbam_kwargs = {
+        "ratio": args.cbam_ratio,
+        "kernel_size": args.cbam_kernel_size,
+    }
+
     # Model
     model = CycleGANModel(
         input_nc=3,
@@ -182,6 +203,11 @@ def main():
 
         use_perceptual_loss=args.perceptual,
         perceptual_weight=args.perceptual_weight,
+
+        # ✅ CBAM（只加最后 N 个残差块）
+        use_cbam=args.cbam,
+        cbam_last_n=args.cbam_last_n,
+        cbam_kwargs=cbam_kwargs,
     )
 
     # Resume

@@ -65,6 +65,7 @@ class ResnetGenerator(nn.Module):
         upsample_mode: str = "transpose",  # "transpose" | "nearest"
         use_cbam: bool = False,
         cbam_kwargs: Optional[Dict] = None,  # ✅ 兼容 Py<3.10
+        cbam_last_n: int = 0,
     ):
         super().__init__()
         assert n_blocks >= 0, "n_blocks must be >= 0"
@@ -84,6 +85,12 @@ class ResnetGenerator(nn.Module):
                     "use_cbam=True 但无法导入 CBAM。请确认 models/cbam.py 中存在 CBAM 类。"
                 ) from e
 
+        # ---- 只在最后 N 个残差块启用 CBAM ----
+        cbam_last_n = int(cbam_last_n) if cbam_last_n is not None else 0
+        if cbam_last_n < 0:
+            raise ValueError("cbam_last_n must be >= 0")
+        cbam_last_n = min(cbam_last_n, n_blocks)  # 超过总块数就裁剪
+        
         model = [
             nn.ReflectionPad2d(3),
             nn.Conv2d(input_nc, ngf, kernel_size=7, bias=use_bias),
@@ -104,8 +111,23 @@ class ResnetGenerator(nn.Module):
             out_dim *= 2
 
         # 残差块
-        for _ in range(n_blocks):
-            cbam = cbam_factory(in_dim) if cbam_factory is not None else None
+        # for _ in range(n_blocks):
+        #     cbam = cbam_factory(in_dim) if cbam_factory is not None else None
+        #     model += [
+        #         ResnetBlock(
+        #             in_dim,
+        #             norm_layer=norm_layer,
+        #             use_dropout=use_dropout,
+        #             dropout_p=dropout_p,
+        #             use_bias=use_bias,
+        #             cbam=cbam,
+        #         )
+        #     ]
+        # 残差块：只在最后 cbam_last_n 个块启用 CBAM
+        for idx in range(n_blocks):
+            use_cbam_here = (cbam_factory is not None) and (cbam_last_n > 0) and (idx >= n_blocks - cbam_last_n)
+            cbam = cbam_factory(in_dim) if use_cbam_here else None
+
             model += [
                 ResnetBlock(
                     in_dim,
@@ -116,6 +138,7 @@ class ResnetGenerator(nn.Module):
                     cbam=cbam,
                 )
             ]
+
 
         # 上采样 x2
         out_dim = in_dim // 2

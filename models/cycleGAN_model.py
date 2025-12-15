@@ -72,6 +72,11 @@ class CycleGANModel:
         # ===== 可选：感知损失 =====
         use_perceptual_loss=False,
         perceptual_weight=0.0,
+
+        # ===== 可选：cbam模块 =====
+        use_cbam=False,
+        cbam_last_n=0,
+        cbam_kwargs=None,
     ):
         self.device = torch.device(device if torch.cuda.is_available() else "cpu")
 
@@ -87,8 +92,23 @@ class CycleGANModel:
         self.channels_last = bool(channels_last and self.device.type == "cuda")
 
         # ---------- 网络 ----------
-        self.netG_A = ResnetGenerator(input_nc, output_nc, ngf).to(self.device)
-        self.netG_B = ResnetGenerator(output_nc, input_nc, ngf).to(self.device)
+        # self.netG_A = ResnetGenerator(input_nc, output_nc, ngf).to(self.device)
+        # self.netG_B = ResnetGenerator(output_nc, input_nc, ngf).to(self.device)
+        # 加上 cbam 的残差块
+        self.netG_A = ResnetGenerator(
+            input_nc, output_nc, ngf,
+            use_cbam=use_cbam,
+            cbam_last_n=cbam_last_n,
+            cbam_kwargs=cbam_kwargs,
+        ).to(self.device)
+
+        self.netG_B = ResnetGenerator(
+            output_nc, input_nc, ngf,
+            use_cbam=use_cbam,
+            cbam_last_n=cbam_last_n,
+            cbam_kwargs=cbam_kwargs,
+        ).to(self.device)
+
         self.netD_A = PatchDiscriminator(output_nc, ndf).to(self.device)
         self.netD_B = PatchDiscriminator(input_nc, ndf).to(self.device)
 
