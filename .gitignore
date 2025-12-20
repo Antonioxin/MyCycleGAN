@@ -118,3 +118,11 @@ tb_logs/
 eval_out/
 eval_out_cbam/
 eval_out_origin/
+
+# ---- demo_backend: do not upload model checkpoints ----
+demo_backend/checkpoints/*
+!demo_backend/checkpoints/.gitkeep
+
+# optional: do not upload local outputs / example images
+demo_backend/outputs/*
+!demo_backend/outputs/.gitkeep
